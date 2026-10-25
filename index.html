@@ -1,0 +1,818 @@
+<title>Test QI Gratuit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  /* Layout: colonne unique de 720 px, en-tête collant, grand bandeau sombre en tête de l'accueil et du résultat, sections sobres en dessous. */
+  :root {
+    --bg: #eef1f8;
+    --surface: #ffffff;
+    --ink: #0d1530;
+    --muted: #556080;
+    --line: #d9dfee;
+    --accent: #2f4bff;
+    --accent-ink: #ffffff;
+    --accent-soft: #e6eaff;
+    --signal: #ff6a3d;
+    --good: #0e9f6e;
+    --ad-bg: #e5e9f4;
+    --hero-a: #0c1747;
+    --hero-b: #1c33c9;
+    --hero-ink: #ffffff;
+    --hero-muted: #c3cbf0;
+    --hero-line: #3b4fc4;
+    --hero-glow: #ff7a4d;
+    --hero-btn-bg: #ffffff;
+    --hero-btn-ink: #0c1747;
+    --font-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+    --font-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #090e1f; --surface: #121a35; --ink: #eef1fb; --muted: #9aa5cb; --line: #26305a;
+      --accent: #7c93ff; --accent-ink: #090e1f; --accent-soft: #1b2554; --signal: #ff8a60; --good: #3dd6a0; --ad-bg: #0e1530;
+      --hero-a: #0a1139; --hero-b: #1a2bb0; --hero-line: #3547b8;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #090e1f; --surface: #121a35; --ink: #eef1fb; --muted: #9aa5cb; --line: #26305a;
+    --accent: #7c93ff; --accent-ink: #090e1f; --accent-soft: #1b2554; --signal: #ff8a60; --good: #3dd6a0; --ad-bg: #0e1530;
+    --hero-a: #0a1139; --hero-b: #1a2bb0; --hero-line: #3547b8;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.55;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0 48px;
+  }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+  .wrap { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+  main { display: flex; flex-direction: column; gap: 22px; min-width: 0; animation: rise .35s ease both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  svg { display: block; }
+
+  /* En-tête */
+  header.top {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 11;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 14px 0; background: var(--bg); border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 800; font-size: 20px; letter-spacing: -0.02em; min-width: 0; }
+  .brand svg { width: 30px; height: 30px; flex: none; }
+  .brand span { color: var(--accent); }
+  .pill { font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 6px 10px; border-radius: 999px; white-space: nowrap; }
+  .timer { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 14px; font-variant-numeric: tabular-nums; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+  .timer svg { width: 16px; height: 16px; color: var(--muted); }
+
+  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.025em; text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(34px, 8.6vw, 54px); font-weight: 800; line-height: 1.02; }
+  h2 { font-size: clamp(24px, 6.4vw, 32px); font-weight: 800; line-height: 1.1; }
+  h3 { font-size: 18px; font-weight: 600; line-height: 1.25; }
+  p { margin: 0; }
+  .lead { font-size: 17px; color: var(--muted); max-width: 56ch; }
+  .eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+  /* Bandeau sombre */
+  .hero {
+    position: relative; overflow: hidden; border-radius: 20px; padding: 28px 22px 22px; color: var(--hero-ink);
+    background: linear-gradient(155deg, var(--hero-a) 0%, var(--hero-b) 100%);
+    display: flex; flex-direction: column; gap: 18px; min-width: 0;
+  }
+  .hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 94% 6%, color-mix(in srgb, var(--hero-glow) 30%, transparent), transparent 46%); }
+  .hero > * { position: relative; z-index: 1; }
+  .hero .eyebrow { color: var(--hero-muted); }
+  .hero .lead { color: var(--hero-muted); }
+  .hero-grid { display: grid; grid-template-columns: 1.25fr .75fr; gap: 24px; align-items: center; }
+  .hero-text { display: flex; flex-direction: column; gap: 16px; min-width: 0; align-items: flex-start; }
+  .hero-fig { width: 100%; max-width: 210px; justify-self: center; }
+  .hero-fig svg { width: 100%; height: auto; }
+  .hf { fill: none; stroke: var(--hero-ink); stroke-width: 2.5; stroke-linejoin: round; }
+  .hc { fill: none; stroke: var(--hero-line); stroke-width: 1.5; }
+  .hq { fill: color-mix(in srgb, var(--hero-glow) 22%, transparent); stroke: var(--hero-glow); stroke-width: 1.5; stroke-dasharray: 4 4; }
+  .hero-facts { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--hero-line); padding-top: 16px; gap: 10px; }
+  .hero-facts b { display: block; font-family: var(--font-display); font-size: 26px; font-weight: 800; line-height: 1.1; }
+  .hero-facts span { font-size: 13px; color: var(--hero-muted); }
+  @media (max-width: 560px) { .hero-grid { grid-template-columns: 1fr; } .hero-fig { justify-self: start; max-width: 170px; } }
+
+  /* Boutons */
+  .btn {
+    appearance: none; border: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    background: var(--accent); color: var(--accent-ink);
+    font: 600 17px/1 var(--font-body); padding: 16px 24px; border-radius: 12px; min-height: 54px;
+  }
+  .btn svg { width: 18px; height: 18px; }
+  .btn:hover { filter: brightness(1.08); }
+  .btn:disabled { background: var(--line); color: var(--muted); cursor: not-allowed; filter: none; }
+  .btn.light { background: var(--hero-btn-bg); color: var(--hero-btn-ink); }
+  .btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+  .btn.ghost:hover { border-color: var(--ink); filter: none; }
+  .btn:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .btn.wide { width: 100%; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .note { font-size: 13px; color: var(--muted); }
+
+  /* Sections de l'accueil */
+  .section { display: flex; flex-direction: column; gap: 16px; }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; counter-reset: s; }
+  .steps li { counter-increment: s; display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+  .steps li::before { content: counter(s); font-family: var(--font-mono); font-size: 15px; width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); }
+  .steps h3 { margin-bottom: 2px; }
+  .steps p { color: var(--muted); font-size: 15px; }
+  .domains { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 460px) { .domains { grid-template-columns: 1fr; } }
+  .domain { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .domain .ic { width: 42px; height: 42px; border-radius: 11px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
+  .domain .ic svg { width: 22px; height: 22px; }
+  .domain p { color: var(--muted); font-size: 15px; }
+  details { border-bottom: 1px solid var(--line); }
+  details:first-of-type { border-top: 1px solid var(--line); }
+  summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 16px 0; font-weight: 600; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; font-family: var(--font-mono); font-size: 20px; color: var(--accent); flex: none; }
+  details[open] summary::after { content: "\2212"; }
+  details p { padding: 0 0 16px; color: var(--muted); max-width: 60ch; }
+  footer.foot { display: flex; flex-direction: column; gap: 6px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+
+  /* Questions */
+  .progress { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+  .progress i { display: block; height: 100%; background: var(--accent); width: 0; border-radius: 4px; transition: width .3s ease; }
+  .qmeta { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .qmeta .chip { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--accent); background: var(--accent-soft); padding: 7px 12px; border-radius: 999px; }
+  .qmeta .chip svg { width: 18px; height: 18px; }
+  .qmeta .count { font-family: var(--font-mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+  .qtext { font-family: var(--font-display); font-weight: 600; font-size: clamp(22px, 6vw, 29px); line-height: 1.22; letter-spacing: -0.015em; text-wrap: balance; }
+  .qtext.seq { font-family: var(--font-mono); font-weight: 500; letter-spacing: .02em; font-size: clamp(22px, 6vw, 30px); }
+  .qfig { display: flex; justify-content: center; }
+  .qfig svg { width: 100%; height: auto; }
+  fieldset { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .opt { display: block; position: relative; min-width: 0; }
+  .opt input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+  .opt .card {
+    position: relative; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 12px 14px;
+    border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface); font-weight: 500; overflow-wrap: anywhere;
+  }
+  .opt:hover .card { border-color: var(--muted); }
+  .key { flex: none; width: 28px; height: 28px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font: 500 13px var(--font-mono); font-style: normal; }
+  .opt input:checked + .card { border-color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); background: var(--accent-soft); }
+  .opt input:checked + .card .key { background: var(--accent); color: var(--accent-ink); }
+  .opt input:focus-visible + .card { outline: 3px solid var(--accent); outline-offset: 2px; }
+  @media (max-width: 420px) { fieldset { grid-template-columns: 1fr; } }
+  fieldset.vis { grid-template-columns: repeat(4, 1fr); }
+  fieldset.vis .card { justify-content: center; min-height: 92px; padding: 8px; }
+  fieldset.vis .card svg { width: 64px; height: 64px; }
+  fieldset.vis .key { position: absolute; top: 6px; left: 6px; width: 22px; height: 22px; font-size: 11px; border-radius: 6px; }
+  @media (max-width: 420px) { fieldset.vis { grid-template-columns: 1fr 1fr; } }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .hint { font-size: 13px; color: var(--muted); }
+
+  /* Pause et passage avant le résultat */
+  .ad-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: -16px; }
+  .ad {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    background: var(--ad-bg); border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); text-align: center; overflow: hidden; width: 100%;
+  }
+  .ad small { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+  .ad .size { font-size: 13px; }
+  .ad.banner { min-height: 100px; }
+  .ad.rect { min-height: 250px; }
+  .gate-top { display: flex; align-items: center; gap: 18px; }
+  .ring { position: relative; width: 72px; height: 72px; flex: none; }
+  .ring svg { width: 100%; height: 100%; }
+  .ring .rt { fill: none; stroke: var(--line); stroke-width: 5; }
+  .ring .rf { fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 175.93; stroke-dashoffset: 175.93; }
+  .ring b { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-mono); font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; }
+
+  /* Résultat */
+  .score { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .score b { font-family: var(--font-display); font-weight: 800; font-size: clamp(96px, 30vw, 150px); line-height: .9; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+  .score span { font-family: var(--font-mono); font-size: 14px; color: var(--hero-muted); }
+  .curve { width: 100%; height: auto; }
+  .curve .area { fill: color-mix(in srgb, var(--hero-ink) 12%, transparent); }
+  .curve .fill { fill: color-mix(in srgb, var(--hero-glow) 45%, transparent); }
+  .curve .line { fill: none; stroke: var(--hero-ink); stroke-width: 1.5; }
+  .curve .base { stroke: var(--hero-line); stroke-width: 1; }
+  .curve .mark { stroke: var(--hero-glow); stroke-width: 2.5; }
+  .curve .dot { fill: var(--hero-glow); }
+  .curve text { fill: var(--hero-muted); font-family: var(--font-mono); font-size: 11px; }
+  .curve text.big { fill: var(--hero-ink); font-size: 13px; font-weight: 500; }
+  .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .tile b { font-family: var(--font-display); font-size: 24px; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .tile span { font-size: 13px; color: var(--muted); }
+  .bars { display: flex; flex-direction: column; gap: 16px; }
+  .bar { display: grid; grid-template-columns: auto 1fr auto; gap: 6px 10px; align-items: center; font-size: 15px; font-weight: 500; }
+  .bar .ic { width: 28px; height: 28px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
+  .bar .ic svg { width: 16px; height: 16px; }
+  .bar em { font-style: normal; font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .bar .track { grid-column: 1 / -1; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+  .bar .track i { display: block; height: 100%; background: var(--accent); border-radius: 4px; transition: width .8s ease; }
+  .toast { font-size: 14px; color: var(--good); min-height: 20px; }
+  footer.foot a { color: var(--accent); }
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: reduce) {
+    main { animation: none; }
+    .progress i, .bar .track i { transition: none; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8" style="fill:var(--accent)"/>
+        <g style="fill:var(--accent-ink)">
+          <circle cx="9" cy="9" r="2.2"/><circle cx="16" cy="9" r="2.2"/><circle cx="23" cy="9" r="2.2"/>
+          <circle cx="9" cy="16" r="2.2"/><circle cx="16" cy="16" r="2.2"/><circle cx="23" cy="16" r="2.2"/>
+          <circle cx="9" cy="23" r="2.2"/><circle cx="16" cy="23" r="2.2"/>
+        </g>
+        <circle cx="23" cy="23" r="3" style="fill:var(--signal)"/>
+      </svg>
+      <div>Test QI <span>Gratuit</span></div>
+    </div>
+    <div class="pill" id="pill">100 % gratuit</div>
+    <div class="timer" id="timer" hidden><svg id="clock-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span id="clock">00:00</span></div>
+  </header>
+
+  <!-- ACCUEIL -->
+  <main id="s-intro">
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-text">
+          <div class="eyebrow">Test d'aptitudes en ligne</div>
+          <h1>Mesurez votre QI en 10 minutes.</h1>
+          <p class="lead">25 questions de logique, de langage et de raisonnement visuel. Sans inscription, avec un résultat immédiat.</p>
+          <button class="btn light" id="start" type="button">Commencer le test
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+        <div class="hero-fig" aria-hidden="true">
+          <svg viewBox="0 0 180 180">
+            <g class="hc">
+              <rect x="3" y="3" width="54" height="54" rx="8"/><rect x="63" y="3" width="54" height="54" rx="8"/><rect x="123" y="3" width="54" height="54" rx="8"/>
+              <rect x="3" y="63" width="54" height="54" rx="8"/><rect x="63" y="63" width="54" height="54" rx="8"/><rect x="123" y="63" width="54" height="54" rx="8"/>
+              <rect x="3" y="123" width="54" height="54" rx="8"/><rect x="63" y="123" width="54" height="54" rx="8"/>
+            </g>
+            <rect class="hq" x="123" y="123" width="54" height="54" rx="8"/>
+            <g class="hf">
+              <circle cx="30" cy="30" r="13"/><rect x="77" y="17" width="26" height="26"/><polygon points="150,17 163,43 137,43"/>
+              <rect x="17" y="77" width="26" height="26"/><polygon points="90,77 103,103 77,103"/><circle cx="150" cy="90" r="13"/>
+              <polygon points="30,137 43,163 17,163"/><circle cx="90" cy="150" r="13"/>
+            </g>
+            <text x="150" y="160" text-anchor="middle" style="fill:var(--hero-glow);font:600 30px var(--font-mono)">?</text>
+          </svg>
+        </div>
+      </div>
+      <div class="hero-facts">
+        <div><b>25</b><span>questions</span></div>
+        <div><b>10 min</b><span>en moyenne</span></div>
+        <div><b>0 €</b><span>sans inscription</span></div>
+      </div>
+    </section>
+
+    <div class="ad-label">Publicité</div>
+    <div class="ad banner" data-ad-slot="accueil-banniere" aria-label="Espace publicitaire">
+      <!-- Collez ici le code de votre annonce (AdSense, etc.) -->
+      <small>Espace publicitaire</small><span class="size">Bannière 320 × 100</span>
+    </div>
+
+    <section class="section">
+      <h2>Comment ça marche</h2>
+      <ol class="steps">
+        <li><div><h3>Répondez aux questions</h3><p>25 questions, de la plus facile à la plus difficile. Une seule bonne réponse par question.</p></div></li>
+        <li><div><h3>Gardez le rythme</h3><p>Un chronomètre tourne pendant le test. Il n'y a pas de limite de temps par question.</p></div></li>
+        <li><div><h3>Découvrez votre position</h3><p>Votre score est placé sur la courbe de répartition de la population, avec le détail par domaine.</p></div></li>
+      </ol>
+    </section>
+
+    <section class="section">
+      <h2>Ce que le test explore</h2>
+      <div class="domains" id="domains"></div>
+    </section>
+
+    <section class="section">
+      <h2>Questions fréquentes</h2>
+      <div>
+        <details><summary>Ce test donne-t-il mon vrai QI ?</summary><p>Non. C'est une estimation ludique fondée sur 25 questions. Un QI officiel se mesure lors d'un bilan avec un psychologue, avec des épreuves plus longues et validées scientifiquement.</p></details>
+        <details><summary>Mes réponses sont-elles enregistrées ?</summary><p>Le test ne vous demande aucun compte et n'envoie pas vos réponses. Votre meilleur score est gardé uniquement dans votre navigateur. Les annonces peuvent utiliser des cookies si vous les acceptez.</p></details>
+        <details><summary>Puis-je refaire le test ?</summary><p>Oui, autant de fois que vous voulez. Les questions restent les mêmes, donc un deuxième essai reflète en partie votre mémoire. Pour une estimation fiable, comptez sur le premier résultat.</p></details>
+        <details><summary>Pourquoi y a-t-il de la publicité ?</summary><p>Les annonces financent le site et permettent de le garder gratuit.</p></details>
+      </div>
+    </section>
+
+    <div class="ad-label">Publicité</div>
+    <div class="ad banner" data-ad-slot="accueil-bas" aria-label="Espace publicitaire">
+      <small>Espace publicitaire</small><span class="size">Bannière 320 × 100</span>
+    </div>
+
+    <footer class="foot">
+      <div><a href="mentions-legales.html">Mentions légales</a> · <a href="confidentialite.html">Politique de confidentialité</a></div>
+      <div>© 2026 Test QI Gratuit. Estimation ludique, sans valeur de diagnostic.</div>
+    </footer>
+  </main>
+
+  <!-- QUESTION -->
+  <main id="s-quiz" hidden>
+    <div class="progress" aria-hidden="true"><i id="bar"></i></div>
+    <div class="qmeta"><span class="chip" id="qcat"></span><span class="count" id="qnum">1 / 25</span></div>
+    <div class="panel">
+      <div class="qtext" id="qtext"></div>
+      <div class="qfig" id="qfig" hidden></div>
+      <fieldset id="opts" aria-labelledby="qtext"></fieldset>
+    </div>
+    <button class="btn wide" id="next" type="button" disabled>Question suivante</button>
+    <p class="hint">Astuce : les touches 1 à 4 choisissent une réponse, Entrée valide.</p>
+  </main>
+
+  <!-- PAUSE -->
+  <main id="s-pause" hidden>
+    <div class="eyebrow">Mi-parcours</div>
+    <h2>La première moitié est faite.</h2>
+    <p class="lead" id="pause-meta"></p>
+    <p class="lead">Les questions suivantes sont plus difficiles. Le chronomètre continue de tourner.</p>
+    <div class="ad-label">Publicité</div>
+    <div class="ad rect" data-ad-slot="pause-rectangle" aria-label="Espace publicitaire">
+      <small>Espace publicitaire</small><span class="size">Rectangle 300 × 250</span>
+    </div>
+    <button class="btn wide" id="resume" type="button">Continuer</button>
+  </main>
+
+  <!-- RÉSULTAT -->
+  <main id="s-result" hidden>
+    <div id="gate" class="section">
+      <div class="gate-top">
+        <div class="ring"><svg viewBox="0 0 64 64" aria-hidden="true"><circle class="rt" cx="32" cy="32" r="28"/><circle class="rf" id="ringf" cx="32" cy="32" r="28" transform="rotate(-90 32 32)"/></svg><b id="ringn">5</b></div>
+        <div><h2>Votre résultat est prêt.</h2></div>
+      </div>
+      <p class="lead">Ce test est gratuit grâce à la publicité. Votre résultat s'affiche dans quelques secondes.</p>
+      <div class="ad-label">Publicité</div>
+      <div class="ad rect" data-ad-slot="resultat-porte" aria-label="Espace publicitaire">
+        <small>Espace publicitaire</small><span class="size">Rectangle 300 × 250</span>
+      </div>
+      <button class="btn wide" id="unlock" type="button" disabled>Résultat dans 5 s</button>
+    </div>
+
+    <div id="reveal" hidden style="display:flex;flex-direction:column;gap:22px">
+      <section class="hero">
+        <div class="eyebrow">Votre QI estimé</div>
+        <div class="score"><b id="iq">100</b><span id="range">entre 93 et 107</span></div>
+        <div>
+          <h2 id="verdict">Dans la moyenne</h2>
+          <p class="lead" id="percentile" style="margin-top:8px"></p>
+        </div>
+        <svg class="curve" id="curve" viewBox="0 0 600 190" role="img" aria-label="Courbe de répartition des scores de QI avec votre position"></svg>
+      </section>
+
+      <div class="tiles">
+        <div class="tile"><b id="t-right">0</b><span>bonnes réponses</span></div>
+        <div class="tile"><b id="t-time">00:00</b><span>temps total</span></div>
+        <div class="tile"><b id="t-best">0</b><span>votre record</span></div>
+      </div>
+
+      <div class="panel">
+        <h3>Détail par domaine</h3>
+        <div class="bars" id="bars"></div>
+      </div>
+
+      <div class="ad-label">Publicité</div>
+      <div class="ad banner" data-ad-slot="resultat-haut" aria-label="Espace publicitaire">
+        <small>Espace publicitaire</small><span class="size">Bannière 320 × 100</span>
+      </div>
+
+      <div class="row">
+        <button class="btn" id="share" type="button">Copier mon résultat</button>
+        <button class="btn ghost" id="again" type="button">Refaire le test</button>
+      </div>
+      <div class="toast" id="toast" role="status"></div>
+
+      <div class="ad-label">Publicité</div>
+      <div class="ad rect" data-ad-slot="resultat-bas" aria-label="Espace publicitaire">
+        <small>Espace publicitaire</small><span class="size">Rectangle 300 × 250</span>
+      </div>
+      <p class="note">Estimation indicative fondée sur 25 questions. Un test court ne mesure ni toutes les formes d'intelligence ni votre potentiel. Un résultat varie selon la fatigue, le stress et la familiarité avec ce genre d'exercices.</p>
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  var CATS = { num: 'Suites et nombres', verb: 'Langage', log: 'Logique', vis: 'Raisonnement visuel' };
+  var DESC = {
+    num: 'Repérer la règle cachée dans une suite de chiffres ou de lettres.',
+    verb: 'Relier des mots, des idées et des catégories.',
+    log: 'Déduire une conclusion à partir de faits, sans se laisser piéger.',
+    vis: 'Compléter des séries et des grilles de formes.'
+  };
+  var ICON = {
+    num: '<path d="M4 18h4v-4h4v-4h4V6h4"/>',
+    verb: '<path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H11l-5 4v-4H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/>',
+    log: '<circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="12" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8.5 6h4a3 3 0 0 1 3 3v3M8.5 18h4a3 3 0 0 0 3-3v-3"/>',
+    vis: '<rect x="3" y="3" width="8" height="8" rx="1"/><circle cx="17" cy="7" r="4"/><path d="M12 21l4.5-8 4.5 8z"/><circle cx="6" cy="17" r="3"/>'
+  };
+  function icon(k) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICON[k] + '</svg>';
+  }
+
+  // d = difficulté (1 facile, 2 moyen, 3 difficile) ; a = index de la bonne réponse avant mélange
+  var BANK = [
+    { c: 'num',  d: 1, seq: true, q: '2, 4, 6, 8, ?',        o: ['9', '10', '11', '12'], a: 1 },
+    { c: 'num',  d: 1, seq: true, q: '3, 6, 12, 24, ?',      o: ['36', '42', '48', '54'], a: 2 },
+    { c: 'verb', d: 1, q: 'Trouvez l’intrus : pomme, poire, carotte, cerise.', o: ['Pomme', 'Poire', 'Carotte', 'Cerise'], a: 2 },
+    { c: 'verb', d: 1, q: 'Chien est à aboiement ce que chat est à…', o: ['Miaulement', 'Griffe', 'Poil', 'Lait'], a: 0 },
+    { c: 'num',  d: 1, seq: true, q: '1, 4, 9, 16, ?',       o: ['20', '24', '25', '36'], a: 2 },
+    { c: 'verb', d: 1, q: 'Livre est à lecture ce que fourchette est à…', o: ['Table', 'Métal', 'Cuisine', 'Repas'], a: 3 },
+    { c: 'verb', d: 1, q: 'Quel instrument ne va pas avec les autres : violon, guitare, harpe, trompette ?', o: ['Violon', 'Guitare', 'Harpe', 'Trompette'], a: 3 },
+    { c: 'num',  d: 2, seq: true, q: '1, 1, 2, 3, 5, 8, ?',  o: ['11', '12', '13', '15'], a: 2 },
+    { c: 'log',  d: 2, q: 'Tous les Zorks sont des Blips. Certains Blips sont rouges. Que peut-on conclure avec certitude ?', o: ['Tous les Zorks sont rouges', 'Certains Zorks sont rouges', 'On ne peut rien conclure sur la couleur des Zorks', 'Aucun Zork n’est rouge'], a: 2 },
+    { c: 'num',  d: 2, seq: true, q: '2, 6, 12, 20, 30, ?',  o: ['38', '40', '42', '44'], a: 2 },
+    { c: 'num',  d: 2, seq: true, q: '1, 2, 6, 24, 120, ?',  o: ['240', '480', '600', '720'], a: 3 },
+    { c: 'num',  d: 2, seq: true, q: '7, 10, 8, 11, 9, 12, ?', o: ['9', '10', '11', '13'], a: 1 },
+    { c: 'log',  d: 2, q: 'Marie est plus grande que Lucie. Lucie est plus grande que Sarah. Camille est plus petite que Sarah. Qui est la deuxième plus petite ?', o: ['Marie', 'Lucie', 'Sarah', 'Camille'], a: 2 },
+    { c: 'num',  d: 2, seq: true, q: '2, 3, 5, 7, 11, 13, ?', o: ['14', '15', '17', '19'], a: 2 },
+    { c: 'log',  d: 2, q: 'Lors d’une course, vous dépassez le deuxième coureur. Vous êtes maintenant…', o: ['Premier', 'Deuxième', 'Troisième', 'Impossible à dire'], a: 1 },
+    { c: 'log',  d: 3, q: 'Une batte et une balle coûtent 1,10 € au total. La batte coûte 1 € de plus que la balle. Combien coûte la balle ?', o: ['0,10 €', '0,05 €', '0,15 €', '0,01 €'], a: 1 },
+    { c: 'log',  d: 3, q: 'Si 3 machines fabriquent 3 pièces en 3 minutes, combien de minutes faut-il à 100 machines pour fabriquer 100 pièces ?', o: ['1 minute', '3 minutes', '33 minutes', '100 minutes'], a: 1 },
+    { c: 'num',  d: 3, seq: true, q: 'A, C, F, J, O, ?',     o: ['T', 'U', 'V', 'W'], a: 1 },
+    { c: 'num',  d: 3, seq: true, q: '3, 5, 9, 17, 33, ?',   o: ['49', '57', '65', '66'], a: 2 },
+    { c: 'log',  d: 3, q: 'Un escargot grimpe un mur de 10 m. Le jour il monte de 3 m, la nuit il redescend de 2 m. En combien de jours atteint-il le sommet ?', o: ['7 jours', '8 jours', '10 jours', '11 jours'], a: 1 }
+  ];
+
+  // ---- Questions visuelles : figures dessinées en SVG ----
+  var ST = 'stroke:var(--ink);stroke-width:2.5;stroke-linejoin:round;';
+  function sh(k, filled, x, y, s) {
+    var st = 'style="' + ST + 'fill:' + (filled ? 'var(--ink)' : 'none') + '"';
+    if (k === 'c') return '<circle cx="' + x + '" cy="' + y + '" r="' + s + '" ' + st + '/>';
+    if (k === 's') return '<rect x="' + (x - s) + '" y="' + (y - s) + '" width="' + (2 * s) + '" height="' + (2 * s) + '" ' + st + '/>';
+    if (k === 't') return '<polygon points="' + x + ',' + (y - s) + ' ' + (x + s) + ',' + (y + s) + ' ' + (x - s) + ',' + (y + s) + '" ' + st + '/>';
+    return '<polygon points="' + x + ',' + (y - s) + ' ' + (x + s) + ',' + y + ' ' + x + ',' + (y + s) + ' ' + (x - s) + ',' + y + '" ' + st + '/>';
+  }
+  function qmark() {
+    return '<text x="30" y="39" text-anchor="middle" style="fill:var(--accent);font:600 28px var(--font-mono)">?</text>';
+  }
+  function cellG(inner, gx, gy) {
+    return '<g transform="translate(' + (gx * 60) + ',' + (gy * 60) + ')"><rect x="0" y="0" width="60" height="60" style="fill:none;stroke:var(--line);stroke-width:1.5"/>' + inner + '</g>';
+  }
+  function figRow(inners) {
+    var w = inners.length * 60;
+    return '<svg viewBox="0 0 ' + w + ' 60" style="max-width:' + w + 'px" role="img" aria-label="Série de figures à compléter">' +
+      inners.map(function (s, i) { return cellG(s, i, 0); }).join('') + '</svg>';
+  }
+  function figGrid(rows) {
+    var out = '';
+    rows.forEach(function (r, y) { r.forEach(function (s, x) { out += cellG(s, x, y); }); });
+    return '<svg viewBox="0 0 180 180" style="max-width:240px" role="img" aria-label="Matrice de figures à compléter">' + out + '</svg>';
+  }
+  function opt(inner) { return '<svg viewBox="0 0 60 60" aria-hidden="true">' + inner + '</svg>'; }
+  function dots(n) {
+    var P = { 1: [[30, 30]], 2: [[20, 30], [40, 30]], 3: [[30, 18], [18, 40], [42, 40]],
+      4: [[20, 20], [40, 20], [20, 40], [40, 40]], 5: [[20, 20], [40, 20], [30, 30], [20, 40], [40, 40]],
+      6: [[20, 17], [40, 17], [20, 30], [40, 30], [20, 43], [40, 43]] };
+    return P[n].map(function (p) { return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="5" style="fill:var(--ink)"/>'; }).join('');
+  }
+  function row3(k, filled, n) {
+    var X = { 1: [30], 2: [21, 39], 3: [12, 30, 48] }[n];
+    return X.map(function (x) { return sh(k, filled, x, 30, 6); }).join('');
+  }
+  function bars(set) {
+    var Y = { T: 15, M: 30, B: 45 };
+    return set.map(function (b) {
+      return '<line x1="12" x2="48" y1="' + Y[b] + '" y2="' + Y[b] + '" style="stroke:var(--ink);stroke-width:5;stroke-linecap:round"/>';
+    }).join('');
+  }
+
+  var VIS = {
+    suite: { c: 'vis', d: 1, q: 'Quelle figure complète la série ?',
+      fig: figRow([sh('s', true, 30, 30, 13), sh('c', true, 30, 30, 13), sh('t', true, 30, 30, 13), sh('s', true, 30, 30, 13), sh('c', true, 30, 30, 13), qmark()]),
+      o: [opt(sh('t', true, 30, 30, 13)), opt(sh('d', true, 30, 30, 13)), opt(sh('s', true, 30, 30, 13)), opt(sh('c', true, 30, 30, 13))], a: 0 },
+    points: { c: 'vis', d: 1, q: 'Quelle figure vient ensuite ?',
+      fig: figRow([dots(1), dots(2), dots(3), qmark()]),
+      o: [opt(dots(3)), opt(dots(4)), opt(dots(5)), opt(dots(6))], a: 1 },
+    latin: { c: 'vis', d: 2, q: 'Quelle figure remplace le point d’interrogation ?',
+      fig: figGrid([
+        [sh('c', false, 30, 30, 13), sh('s', false, 30, 30, 13), sh('t', false, 30, 30, 13)],
+        [sh('s', false, 30, 30, 13), sh('t', false, 30, 30, 13), sh('c', false, 30, 30, 13)],
+        [sh('t', false, 30, 30, 13), sh('c', false, 30, 30, 13), qmark()]]),
+      o: [opt(sh('c', false, 30, 30, 13)), opt(sh('s', false, 30, 30, 13)), opt(sh('t', false, 30, 30, 13)), opt(sh('d', false, 30, 30, 13))], a: 1 },
+    compte: { c: 'vis', d: 2, q: 'Quelle case complète la grille ?',
+      fig: figGrid([
+        [row3('c', true, 1), row3('c', true, 2), row3('c', true, 3)],
+        [row3('s', false, 1), row3('s', false, 2), row3('s', false, 3)],
+        [row3('t', true, 1), row3('t', true, 2), qmark()]]),
+      o: [opt(row3('t', true, 3)), opt(row3('t', false, 3)), opt(row3('t', true, 2)), opt(row3('s', true, 3))], a: 0 },
+    barres: { c: 'vis', d: 3, q: 'Quelle case complète la grille ?',
+      fig: figGrid([
+        [bars(['T']), bars(['M']), bars(['T', 'M'])],
+        [bars(['T', 'M']), bars(['M', 'B']), bars(['T', 'B'])],
+        [bars(['B']), bars(['T', 'B']), qmark()]]),
+      o: [opt(bars(['T', 'B'])), opt(bars(['T'])), opt(bars(['B'])), opt(bars(['M']))], a: 1 }
+  };
+  // Insertion de bas en haut pour que les indices restent valables
+  BANK.splice(17, 0, VIS.barres);
+  BANK.splice(12, 0, VIS.compte);
+  BANK.splice(9, 0, VIS.latin);
+  BANK.splice(5, 0, VIS.points);
+  BANK.splice(2, 0, VIS.suite);
+
+  var $ = function (id) { return document.getElementById(id); };
+  var screens = ['s-intro', 's-quiz', 's-pause', 's-result'];
+  var state = { items: [], i: 0, picks: [], t0: 0, tick: null, elapsed: 0, result: null };
+  var reduceMotion = false;
+  try { reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { /* ignoré */ }
+
+  function show(id) {
+    screens.forEach(function (s) { $(s).hidden = (s !== id); });
+    var timed = (id === 's-quiz' || id === 's-pause');
+    $('timer').hidden = !timed;
+    $('pill').hidden = timed;
+    window.scrollTo(0, 0);
+  }
+
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function fmt(sec) {
+    var m = Math.floor(sec / 60), s = sec % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function startTimer() {
+    state.t0 = Date.now();
+    clearInterval(state.tick);
+    state.tick = setInterval(function () {
+      state.elapsed = Math.round((Date.now() - state.t0) / 1000);
+      $('clock').textContent = fmt(state.elapsed);
+    }, 1000);
+  }
+
+  function start() {
+    state.items = BANK.map(function (q) {
+      var opts = q.o.map(function (text, k) { return { text: text, ok: k === q.a }; });
+      return { c: q.c, d: q.d, seq: q.seq, q: q.q, fig: q.fig, opts: shuffle(opts) };
+    });
+    state.i = 0;
+    state.picks = [];
+    state.elapsed = 0;
+    $('clock').textContent = '00:00';
+    startTimer();
+    show('s-quiz');
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    var it = state.items[state.i];
+    var n = state.items.length;
+    $('bar').style.width = (state.i / n * 100) + '%';
+    $('qnum').textContent = (state.i + 1) + ' / ' + n;
+    $('qcat').innerHTML = icon(it.c) + CATS[it.c];
+    var qt = $('qtext');
+    qt.textContent = it.q;
+    qt.className = 'qtext' + (it.seq ? ' seq' : '');
+    var fig = $('qfig');
+    fig.hidden = !it.fig;
+    fig.innerHTML = it.fig || '';
+    var box = $('opts');
+    box.className = it.fig ? 'vis' : '';
+    box.innerHTML = '';
+    it.opts.forEach(function (o, k) {
+      var label = document.createElement('label');
+      label.className = 'opt';
+      var input = document.createElement('input');
+      input.type = 'radio';
+      input.name = 'answer';
+      input.value = String(k);
+      input.id = 'opt-' + k;
+      input.addEventListener('change', function () { $('next').disabled = false; });
+      var card = document.createElement('span');
+      card.className = 'card';
+      var key = document.createElement('i');
+      key.className = 'key';
+      key.textContent = 'ABCD'.charAt(k);
+      card.appendChild(key);
+      if (it.fig) {
+        card.insertAdjacentHTML('beforeend', o.text + '<b class="sr">Figure ' + 'ABCD'.charAt(k) + '</b>');
+      } else {
+        var txt = document.createElement('span');
+        txt.textContent = o.text;
+        card.appendChild(txt);
+      }
+      label.appendChild(input);
+      label.appendChild(card);
+      box.appendChild(label);
+    });
+    $('next').disabled = true;
+    $('next').textContent = state.i === n - 1 ? 'Voir mon résultat' : 'Question suivante';
+  }
+
+  function next() {
+    var sel = document.querySelector('#opts input:checked');
+    if (!sel) return;
+    state.picks[state.i] = parseInt(sel.value, 10);
+    state.i += 1;
+    if (state.i >= state.items.length) { finish(); return; }
+    if (state.i === Math.floor(state.items.length / 2)) {
+      var sec = Math.round((Date.now() - state.t0) / 1000);
+      $('pause-meta').textContent = state.i + ' questions sur ' + state.items.length + ' en ' + fmt(sec) + '.';
+      show('s-pause');
+      return;
+    }
+    renderQuestion();
+  }
+
+  function resume() { show('s-quiz'); renderQuestion(); }
+
+  // Fonction de répartition de la loi normale (approximation d'Abramowitz et Stegun)
+  function cdf(z) {
+    var t = 1 / (1 + 0.2316419 * Math.abs(z));
+    var d = 0.3989423 * Math.exp(-z * z / 2);
+    var p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+    return z > 0 ? 1 - p : p;
+  }
+
+  function computeResult() {
+    var got = 0, max = 0;
+    var by = {};
+    Object.keys(CATS).forEach(function (k) { by[k] = { ok: 0, n: 0 }; });
+    state.items.forEach(function (it, k) {
+      max += it.d;
+      by[it.c].n += 1;
+      var ok = it.opts[state.picks[k]] && it.opts[state.picks[k]].ok;
+      if (ok) { got += it.d; by[it.c].ok += 1; }
+    });
+    var p = got / max;
+    var iq = Math.round(75 + 70 * p);
+    var right = Object.keys(by).reduce(function (s, k) { return s + by[k].ok; }, 0);
+    return { iq: iq, p: p, by: by, right: right };
+  }
+
+  function verdictFor(iq) {
+    if (iq < 85) return 'Un peu sous la moyenne';
+    if (iq < 100) return 'Dans la moyenne';
+    if (iq < 115) return 'Dans la moyenne haute';
+    if (iq < 130) return 'Au-dessus de la moyenne';
+    return 'Très au-dessus de la moyenne';
+  }
+
+  function drawCurve(iq) {
+    var X0 = 60, X1 = 140, W = 560, L = 20, BASE = 150, H = 115;
+    var sx = function (v) { return L + (v - X0) / (X1 - X0) * W; };
+    var sy = function (v) { return BASE - Math.exp(-0.5 * Math.pow((v - 100) / 15, 2)) * H; };
+    var pts = [], upto = [];
+    for (var v = X0; v <= X1; v += 1) {
+      pts.push(sx(v).toFixed(1) + ',' + sy(v).toFixed(1));
+      if (v <= iq) upto.push(sx(v).toFixed(1) + ',' + sy(v).toFixed(1));
+    }
+    var ix = sx(iq).toFixed(1), iy = sy(iq).toFixed(1);
+    var svg = '';
+    svg += '<polygon class="area" points="' + sx(X0) + ',' + BASE + ' ' + pts.join(' ') + ' ' + sx(X1) + ',' + BASE + '"/>';
+    svg += '<polygon class="fill" points="' + sx(X0) + ',' + BASE + ' ' + upto.join(' ') + ' ' + ix + ',' + BASE + '"/>';
+    svg += '<polyline class="line" points="' + pts.join(' ') + '"/>';
+    svg += '<line class="base" x1="' + L + '" x2="' + (L + W) + '" y1="' + BASE + '" y2="' + BASE + '"/>';
+    [70, 85, 100, 115, 130].forEach(function (t) {
+      svg += '<text x="' + sx(t) + '" y="' + (BASE + 18) + '" text-anchor="middle">' + t + '</text>';
+    });
+    svg += '<line class="mark" x1="' + ix + '" x2="' + ix + '" y1="' + iy + '" y2="' + BASE + '"/>';
+    svg += '<circle class="dot" cx="' + ix + '" cy="' + iy + '" r="5"/>';
+    var anchor = iq > 125 ? 'end' : (iq < 80 ? 'start' : 'middle');
+    svg += '<text class="big" x="' + ix + '" y="' + (iy - 12) + '" text-anchor="' + anchor + '">Vous : ' + iq + '</text>';
+    $('curve').innerHTML = svg;
+  }
+
+  function finish() {
+    clearInterval(state.tick);
+    state.elapsed = Math.round((Date.now() - state.t0) / 1000);
+    var r = computeResult();
+    state.result = r;
+    $('iq').textContent = r.iq;
+    $('range').textContent = 'entre ' + (r.iq - 7) + ' et ' + (r.iq + 7);
+    $('verdict').textContent = verdictFor(r.iq);
+    var pct = Math.max(1, Math.min(99, Math.round(cdf((r.iq - 100) / 15) * 100)));
+    $('percentile').textContent = 'Vous faites mieux que ' + pct + ' % de la population, sur une échelle où la moyenne est 100.';
+    drawCurve(r.iq);
+
+    var bars = '';
+    Object.keys(CATS).forEach(function (k) {
+      var b = r.by[k];
+      bars += '<div class="bar"><span class="ic">' + icon(k) + '</span><span>' + CATS[k] + '</span><em>' + b.ok + ' / ' + b.n + '</em>' +
+              '<div class="track"><i style="width:0" data-w="' + Math.round(b.ok / b.n * 100) + '"></i></div></div>';
+    });
+    $('bars').innerHTML = bars;
+
+    $('t-right').textContent = r.right + ' / ' + state.items.length;
+    $('t-time').textContent = fmt(state.elapsed);
+    var best = r.iq;
+    try {
+      var prev = parseInt(localStorage.getItem('test-qi-gratuit-best') || '0', 10);
+      best = Math.max(prev, r.iq);
+      if (r.iq > prev) localStorage.setItem('test-qi-gratuit-best', String(r.iq));
+    } catch (e) { /* stockage indisponible */ }
+    $('t-best').textContent = best;
+
+    show('s-result');
+    openGate();
+  }
+
+  var gateTimer = null;
+  function openGate() {
+    $('gate').hidden = false;
+    $('reveal').hidden = true;
+    var left = 5, b = $('unlock'), f = $('ringf');
+    b.disabled = true;
+    b.textContent = 'Résultat dans ' + left + ' s';
+    $('ringn').textContent = String(left);
+    f.style.transition = 'none';
+    f.style.strokeDashoffset = '175.93';
+    f.getBoundingClientRect();
+    f.style.transition = reduceMotion ? 'none' : 'stroke-dashoffset 5s linear';
+    f.style.strokeDashoffset = '0';
+    clearInterval(gateTimer);
+    gateTimer = setInterval(function () {
+      left -= 1;
+      $('ringn').textContent = String(Math.max(left, 0));
+      if (left <= 0) {
+        clearInterval(gateTimer);
+        f.style.transition = 'none';
+        f.style.strokeDashoffset = '0';
+        b.disabled = false;
+        b.textContent = 'Voir mon résultat';
+      } else {
+        b.textContent = 'Résultat dans ' + left + ' s';
+      }
+    }, 1000);
+  }
+
+  function countUp(el, to) {
+    if (reduceMotion) { el.textContent = to; return; }
+    var from = Math.max(60, to - 40), t0 = performance.now(), dur = 900;
+    function step(t) {
+      var p = Math.min(1, (t - t0) / dur);
+      var e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(from + (to - from) * e);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function unlock() {
+    $('gate').hidden = true;
+    $('reveal').hidden = false;
+    window.scrollTo(0, 0);
+    countUp($('iq'), state.result.iq);
+    setTimeout(function () {
+      Array.prototype.forEach.call(document.querySelectorAll('#bars .track i'), function (el) {
+        el.style.width = el.getAttribute('data-w') + '%';
+      });
+    }, 60);
+  }
+
+  function share() {
+    var r = state.result;
+    var text = 'J’ai obtenu un QI estimé de ' + r.iq + ' sur Test QI Gratuit (' + r.right + '/' + state.items.length + ' bonnes réponses en ' + fmt(state.elapsed) + '). Et vous ?';
+    var done = function (msg) { $('toast').textContent = msg; };
+    try {
+      navigator.clipboard.writeText(text).then(
+        function () { done('Résultat copié.'); },
+        function () { done('Copie refusée. Sélectionnez ce texte : ' + text); }
+      );
+    } catch (e) { done('Copie indisponible. Sélectionnez ce texte : ' + text); }
+  }
+
+  // Cartes des domaines sur l'accueil
+  $('domains').innerHTML = Object.keys(CATS).map(function (k) {
+    return '<div class="domain"><div class="ic">' + icon(k) + '</div><h3>' + CATS[k] + '</h3><p>' + DESC[k] + '</p></div>';
+  }).join('');
+
+  // Raccourcis clavier : 1 à 4 pour répondre, Entrée pour valider
+  document.addEventListener('keydown', function (e) {
+    if ($('s-quiz').hidden) return;
+    if (e.key >= '1' && e.key <= '4') {
+      var inp = document.getElementById('opt-' + (parseInt(e.key, 10) - 1));
+      if (inp) { inp.checked = true; $('next').disabled = false; }
+    } else if (e.key === 'Enter' && !$('next').disabled && e.target.tagName !== 'BUTTON') {
+      next();
+    }
+  });
+
+  $('start').addEventListener('click', start);
+  $('next').addEventListener('click', next);
+  $('resume').addEventListener('click', resume);
+  $('again').addEventListener('click', function () { $('toast').textContent = ''; start(); });
+  $('share').addEventListener('click', share);
+  $('unlock').addEventListener('click', unlock);
+})();
+</script>
